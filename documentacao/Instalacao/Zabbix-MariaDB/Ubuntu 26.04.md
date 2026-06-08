@@ -1,6 +1,6 @@
 # 📘 Guia Completo de Instalação e Configuração do Zabbix 7.4 no Ubuntu 26.04
 
-Este guia detalha passo a passo a instala  o do **Zabbix Server 7.4** no **Ubuntu 26.04 LTS**, utilizando **MySQL 8.4.9**, **Apache2**, **PHP 8.5** e incluindo o Frontend e Agent do Zabbix.
+Este guia detalha passo a passo a instala  o do **Zabbix Server 7.4** no **Ubuntu 26.04 LTS**, utilizando **MariaDB 11.8.6**, **Apache2**, **PHP 8.4.21** e incluindo o Frontend e Agent2 do Zabbix.
 
 ---
 
@@ -9,10 +9,10 @@ Este guia detalha passo a passo a instala  o do **Zabbix Server 7.4** no **Ubunt
 | Componente | Versão |
 |---|---|
 | Sistema Operacional | Ubuntu 26.04 LTS (codename: *resolute*) |
-| Banco de Dados | MySQL 8.4.9 |
+| Banco de Dados | MariaDB 11.8.6 |
 | Servidor Web | Apache2 |
-| PHP | 8.5 |
-| Componentes Zabbix | Server, Frontend, Agent |
+| PHP | 8.4.21 |
+| Componentes Zabbix | Server, Frontend, Agent2 |
 
 > ⚠️ **Dica importante:** Antes de instalar o Zabbix,   essencial conhecer sua vers o do Ubuntu. O reposit rio e os pacotes do Zabbix dependem diretamente da versão do sistema. Instalar a versão errada pode gerar conflitos e erros de compatibilidade.
 
@@ -31,11 +31,11 @@ sudo apt update && sudo apt upgrade -y
 ### Verificar versões instaladas
 
 ```bash
-mysql --version
+mariadb --version
 lsb_release -a
 ```
 
-> Certifique-se de que o MySQL e a versão do Ubuntu são compatíveis com o Zabbix 7.4.
+> Certifique-se de que o MariaDB e a versão do Ubuntu são compatíveis com o Zabbix 7.4.
 
 ---
 
@@ -61,19 +61,19 @@ sudo apt update
 ## 🧩 3. Instalar Zabbix Server, Frontend e Agent
 
 ```bash
-sudo apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent -y
+sudo apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent2 -y
 ```
 
 > Isso instala o servidor Zabbix, o frontend (interface web) e o agente que coleta dados das máquinas monitoradas.
 
 ---
 
-## 🐬 4. Configurar MySQL (Banco de dados do Zabbix)
+## 🐬 4. Configurar MariaDB (Banco de dados do Zabbix)
 
-### Acessar MySQL
+### Acessar MariaDB
 
 ```bash
-sudo mysql -uroot -p
+sudo mariadb -uroot -p
 ```
 
 ### Criar banco de dados e usuário
@@ -94,13 +94,13 @@ EXIT;
 ### Importar schema do Zabbix
 
 ```bash
-zcat /usr/share/zabbix/sql-scripts/mysql/server.sql.gz | mysql --default-character-set=utf8mb4 -uzabbix -p zabbix
+zcat /usr/share/zabbix/sql-scripts/MariaDB/server.sql.gz | mysql --default-character-set=utf8mb4 -uzabbix -p zabbix
 ```
 
 ### Restaurar configuração de segurança
 
 ```bash
-sudo mysql -uroot -p
+sudo mariadb -uroot -p
 ```
 
 ```sql
@@ -126,18 +126,11 @@ DBUser=zabbix
 DBPassword=password
 ```
 
-> ⚠️ **Importante:** Assegure-se de que esses dados coincidem com os do MySQL. Se estiver incorreto, o Zabbix não conseguirá conectar ao banco.
+> ⚠️ **Importante:** Assegure-se de que esses dados coincidem com os do MariaDB. Se estiver incorreto, o Zabbix não conseguirá conectar ao banco.
 
 ---
 
-## 🌐 6. Configurar Apache + PHP
-
-### Ativar módulos necessários
-
-```bash
-sudo a2enmod proxy
-sudo a2enmod proxy_fcgi
-```
+## 🌐 6. Configurar Apache
 
 ### Reiniciar Apache
 
@@ -145,33 +138,15 @@ sudo a2enmod proxy_fcgi
 sudo systemctl restart apache2
 ```
 
-### Ativar configuração do Zabbix
-
-```bash
-sudo a2enconf zabbix-frontend-php
-```
-
-> Caso o comando acima não funcione, crie um symlink manual:
-
-```bash
-sudo ln -s /etc/zabbix/apache.conf /etc/apache2/conf-enabled/zabbix.conf
-```
-
-### Reiniciar Apache após ativar configuração
-
-```bash
-sudo systemctl restart apache2
-```
-
-> Isso garante que o frontend do Zabbix seja servido corretamente pelo Apache.
+> Isso garante que o frontend do Zabbix seja servido corretamente pelo Apache2.
 
 ---
 
 ## 🚀 7. Iniciar serviços
 
 ```bash
-sudo systemctl restart zabbix-server zabbix-agent apache2 php8.5-fpm
-sudo systemctl enable zabbix-server zabbix-agent apache2 php8.5-fpm
+sudo systemctl restart zabbix-server zabbix-agent2 apache2 
+sudo systemctl enable zabbix-server zabbix-agent2 apache2 
 ```
 
 > O `enable` garante que os serviços iniciem automaticamente no boot do servidor.
@@ -183,7 +158,7 @@ sudo systemctl enable zabbix-server zabbix-agent apache2 php8.5-fpm
 ```bash
 sudo systemctl status zabbix-server
 sudo systemctl status apache2
-sudo systemctl status zabbix-agent
+sudo systemctl status zabbix-agent2
 ```
 
 > Assim você confirma que todos os serviços estão funcionando corretamente antes de acessar a interface web.

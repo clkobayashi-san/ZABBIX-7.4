@@ -1,6 +1,6 @@
 # 📘 Guia Completo de Instalação e Configuração do Zabbix 7.4 no Ubuntu 26.04
 
-Este guia detalha passo a passo a instala  o do **Zabbix Server 7.4** no **Ubuntu 26.04 LTS**, utilizando **MySQL 8.4.9**, **Apache2**, **PHP 8.5** e incluindo o Frontend e Agent do Zabbix.
+Este guia detalha passo a passo a instala  o do **Zabbix Server 7.4** no **Ubuntu 26.04 LTS**, utilizando **PostgreSQL 15**, **Apache2**, **PHP 8.5** e incluindo o Frontend e Agent2 do Zabbix.
 
 ---
 
@@ -9,10 +9,10 @@ Este guia detalha passo a passo a instala  o do **Zabbix Server 7.4** no **Ubunt
 | Componente | Versão |
 |---|---|
 | Sistema Operacional | Ubuntu 26.04 LTS (codename: *resolute*) |
-| Banco de Dados | MySQL 8.4.9 |
+| Banco de Dados | PostgreSQL 15 |
 | Servidor Web | Apache2 |
 | PHP | 8.5 |
-| Componentes Zabbix | Server, Frontend, Agent |
+| Componentes Zabbix | Server, Frontend, Agent2 |
 
 > ⚠️ **Dica importante:** Antes de instalar o Zabbix,   essencial conhecer sua vers o do Ubuntu. O reposit rio e os pacotes do Zabbix dependem diretamente da versão do sistema. Instalar a versão errada pode gerar conflitos e erros de compatibilidade.
 
@@ -31,11 +31,11 @@ sudo apt update && sudo apt upgrade -y
 ### Verificar versões instaladas
 
 ```bash
-mysql --version
+pg_lsclusters
 lsb_release -a
 ```
 
-> Certifique-se de que o MySQL e a versão do Ubuntu são compatíveis com o Zabbix 7.4.
+> Certifique-se de que o PostgreSQL e a versão do Ubuntu são compatíveis com o Zabbix 7.4.
 
 ---
 
@@ -44,7 +44,8 @@ lsb_release -a
 ### Baixar pacote oficial
 
 ```bash
-wget https://repo.zabbix.com/zabbix/7.4/release/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.4+ubuntu26.04_all.deb
+# wget https://repo.zabbix.com/zabbix/7.4/release/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.4+ubuntu26.04_all.deb
+
 ```
 
 ### Instalar repositório
@@ -58,61 +59,38 @@ sudo apt update
 
 ---
 
-## 🧩 3. Instalar Zabbix Server, Frontend e Agent
+## 🧩 3. Instalar Zabbix Server, Frontend e Agent2
 
 ```bash
-sudo apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent -y
+sudo apt install zabbix-server-pgsql zabbix-frontend-php php8.5-pgsql zabbix-apache-conf zabbix-sql-scripts zabbix-agent2 -y
 ```
 
 > Isso instala o servidor Zabbix, o frontend (interface web) e o agente que coleta dados das máquinas monitoradas.
 
 ---
 
-## 🐬 4. Configurar MySQL (Banco de dados do Zabbix)
+## 🐬 4. Configurar PostgreSQL (Banco de dados do Zabbix)
 
-### Acessar MySQL
-
-```bash
-sudo mysql -uroot -p
-```
+### Acessar PostgreSQL
 
 ### Criar banco de dados e usuário
 
-```sql
-CREATE DATABASE zabbix CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
-CREATE USER 'zabbix'@'localhost' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON zabbix.* TO 'zabbix'@'localhost';
-SET GLOBAL log_bin_trust_function_creators = 1;
-FLUSH PRIVILEGES;
-EXIT;
+```bash
+sudo -u postgres createuser --pwprompt zabbix
+sudo -u postgres createdb - O zabbix zabbix
 ```
-
-> É importante usar `utf8mb4` para evitar problemas com caracteres especiais na interface do Zabbix.
->
-> O comando `log_bin_trust_function_creators` é necessário para importar funções do schema do Zabbix sem erros.
 
 ### Importar schema do Zabbix
 
 ```bash
-zcat /usr/share/zabbix/sql-scripts/mysql/server.sql.gz | mysql --default-character-set=utf8mb4 -uzabbix -p zabbix
-```
-
-### Restaurar configuração de segurança
-
-```bash
-sudo mysql -uroot -p
-```
-
-```sql
-SET GLOBAL log_bin_trust_function_creators = 0;
-EXIT;
+zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz | sudo-u zabbix psql zabbix
 ```
 
 ---
 
 ## ⚙️ 5. Configurar Zabbix Server
 
-### Editar arquivo principal
+### Editar arquivo principal /etc/zabbix/zabbix_server.conf
 
 ```bash
 sudo nano /etc/zabbix/zabbix_server.conf
@@ -126,59 +104,22 @@ DBUser=zabbix
 DBPassword=password
 ```
 
-> ⚠️ **Importante:** Assegure-se de que esses dados coincidem com os do MySQL. Se estiver incorreto, o Zabbix não conseguirá conectar ao banco.
+> ⚠️ **Importante:** Assegure-se de que esses dados coincidem com os do PostgreSQL. Se estiver incorreto, o Zabbix não conseguirá conectar ao banco.
 
 ---
 
-## 🌐 6. Configurar Apache + PHP
-
-### Ativar módulos necessários
+## 🚀 6. Iniciar serviços
 
 ```bash
-sudo a2enmod proxy
-sudo a2enmod proxy_fcgi
-```
-
-### Reiniciar Apache
-
-```bash
-sudo systemctl restart apache2
-```
-
-### Ativar configuração do Zabbix
-
-```bash
-sudo a2enconf zabbix-frontend-php
-```
-
-> Caso o comando acima não funcione, crie um symlink manual:
-
-```bash
-sudo ln -s /etc/zabbix/apache.conf /etc/apache2/conf-enabled/zabbix.conf
-```
-
-### Reiniciar Apache após ativar configuração
-
-```bash
-sudo systemctl restart apache2
-```
-
-> Isso garante que o frontend do Zabbix seja servido corretamente pelo Apache.
-
----
-
-## 🚀 7. Iniciar serviços
-
-```bash
-sudo systemctl restart zabbix-server zabbix-agent apache2 php8.5-fpm
-sudo systemctl enable zabbix-server zabbix-agent apache2 php8.5-fpm
+systemctl restart zabbix-server zabbix-agent2 apache2 php8.5-fpm
+systemctl enable zabbix-server zabbix-agent2 apache2 php8.5-fpm
 ```
 
 > O `enable` garante que os serviços iniciem automaticamente no boot do servidor.
 
 ---
 
-## 📊 8. Verificar status dos serviços
+## 📊 7. Verificar status dos serviços
 
 ```bash
 sudo systemctl status zabbix-server
@@ -190,7 +131,7 @@ sudo systemctl status zabbix-agent
 
 ---
 
-## 🌍 9. Acessar a interface web
+## 🌍 8. Acessar a interface web
 
 Abra no navegador:
 
