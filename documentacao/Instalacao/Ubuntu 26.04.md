@@ -1,12 +1,12 @@
-# ?? Guia Completo de Instala  o e Configura  o do Zabbix 7.4 no Ubuntu 26.04
+# 📘 Guia Completo de Instalação e Configuração do Zabbix 7.4 no Ubuntu 26.04
 
 Este guia detalha passo a passo a instala  o do **Zabbix Server 7.4** no **Ubuntu 26.04 LTS**, utilizando **MySQL 8.4.9**, **Apache2**, **PHP 8.5** e incluindo o Frontend e Agent do Zabbix.
 
 ---
 
-## ?? Vis o Geral
+## 📌 Visão Geral
 
-| Componente | Vers o |
+| Componente | Versão |
 |---|---|
 | Sistema Operacional | Ubuntu 26.04 LTS (codename: *resolute*) |
 | Banco de Dados | MySQL 8.4.9 |
@@ -14,11 +14,11 @@ Este guia detalha passo a passo a instala  o do **Zabbix Server 7.4** no **Ubunt
 | PHP | 8.5 |
 | Componentes Zabbix | Server, Frontend, Agent |
 
-> ?? **Dica importante:** Antes de instalar o Zabbix,   essencial conhecer sua vers o do Ubuntu. O reposit rio e os pacotes do Zabbix dependem diretamente da vers o do sistema. Instalar a vers o errada pode gerar conflitos e erros de compatibilidade.
+> ⚠️ **Dica importante:** Antes de instalar o Zabbix,   essencial conhecer sua vers o do Ubuntu. O reposit rio e os pacotes do Zabbix dependem diretamente da versão do sistema. Instalar a versão errada pode gerar conflitos e erros de compatibilidade.
 
 ---
 
-## ?? 1. Pr -requisitos
+## ⚙️ 1. Pré-requisitos
 
 ### Atualizar o sistema
 
@@ -26,20 +26,20 @@ Este guia detalha passo a passo a instala  o do **Zabbix Server 7.4** no **Ubunt
 sudo apt update && sudo apt upgrade -y
 ```
 
-> Atualizar o Ubuntu garante que todos os pacotes estejam na vers o mais recente, prevenindo conflitos durante a instala  o.
+> Atualizar o Ubuntu garante que todos os pacotes estejam na versão mais recente, prevenindo conflitos durante a instalação.
 
-### Verificar vers es instaladas
+### Verificar versões instaladas
 
 ```bash
 mysql --version
 lsb_release -a
 ```
 
-> Certifique-se de que o MySQL e a vers o do Ubuntu s o compat veis com o Zabbix 7.4.
+> Certifique-se de que o MySQL e a versão do Ubuntu são compatíveis com o Zabbix 7.4.
 
 ---
 
-## ?? 2. Instalar o reposit rio oficial do Zabbix
+## 📦 2. Instalar o repositório oficial do Zabbix
 
 ### Baixar pacote oficial
 
@@ -47,28 +47,28 @@ lsb_release -a
 wget https://repo.zabbix.com/zabbix/7.4/release/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.4+ubuntu26.04_all.deb
 ```
 
-### Instalar reposit rio
+### Instalar repositório
 
 ```bash
 sudo dpkg -i zabbix-release_latest_7.4+ubuntu26.04_all.deb
 sudo apt update
 ```
 
-> O reposit rio oficial garante que voc  instale a vers o correta do Zabbix para sua distribui  o, com atualiza  es de seguran a autom ticas.
+> O repositório oficial garante que você instale a versão correta do Zabbix para sua distribuição, com atualizações de segurança automáticas.
 
 ---
 
-## ?? 3. Instalar Zabbix Server, Frontend e Agent
+## 🧩 3. Instalar Zabbix Server, Frontend e Agent
 
 ```bash
 sudo apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent -y
 ```
 
-> Isso instala o servidor Zabbix, o frontend (interface web) e o agente que coleta dados das m quinas monitoradas.
+> Isso instala o servidor Zabbix, o frontend (interface web) e o agente que coleta dados das máquinas monitoradas.
 
 ---
 
-## ?? 4. Configurar MySQL (Banco de dados do Zabbix)
+## 🐬 4. Configurar MySQL (Banco de dados do Zabbix)
 
 ### Acessar MySQL
 
@@ -76,7 +76,7 @@ sudo apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabb
 sudo mysql -uroot -p
 ```
 
-### Criar banco de dados e usu rio
+### Criar banco de dados e usuário
 
 ```sql
 CREATE DATABASE zabbix CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
@@ -87,9 +87,9 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 
->   importante usar `utf8mb4` para evitar problemas com caracteres especiais na interface do Zabbix.
+> É importante usar `utf8mb4` para evitar problemas com caracteres especiais na interface do Zabbix.
 >
-> O comando `log_bin_trust_function_creators`   necess rio para importar fun  es do schema do Zabbix sem erros.
+> O comando `log_bin_trust_function_creators` é necessário para importar funções do schema do Zabbix sem erros.
 
 ### Importar schema do Zabbix
 
@@ -97,7 +97,7 @@ EXIT;
 zcat /usr/share/zabbix/sql-scripts/mysql/server.sql.gz | mysql --default-character-set=utf8mb4 -uzabbix -p zabbix
 ```
 
-### Restaurar configura  o de seguran a
+### Restaurar configuração de segurança
 
 ```bash
 sudo mysql -uroot -p
@@ -110,7 +110,7 @@ EXIT;
 
 ---
 
-## ?? 5. Configurar Zabbix Server
+## ⚙️ 5. Configurar Zabbix Server
 
 ### Editar arquivo principal
 
@@ -118,7 +118,7 @@ EXIT;
 sudo nano /etc/zabbix/zabbix_server.conf
 ```
 
-### Ajustar os par metros do banco de dados
+### Ajustar os parâmetros do banco de dados
 
 ```ini
 DBName=zabbix
@@ -126,13 +126,13 @@ DBUser=zabbix
 DBPassword=password
 ```
 
-> ?? **Importante:** Assegure-se de que esses dados coincidem com os do MySQL. Se estiver incorreto, o Zabbix n o conseguir  conectar ao banco.
+> ⚠️ **Importante:** Assegure-se de que esses dados coincidem com os do MySQL. Se estiver incorreto, o Zabbix não conseguirá conectar ao banco.
 
 ---
 
-## ?? 6. Configurar Apache + PHP
+## 🌐 6. Configurar Apache + PHP
 
-### Ativar m dulos necess rios
+### Ativar módulos necessários
 
 ```bash
 sudo a2enmod proxy
@@ -145,19 +145,19 @@ sudo a2enmod proxy_fcgi
 sudo systemctl restart apache2
 ```
 
-### Ativar configura  o do Zabbix
+### Ativar configuração do Zabbix
 
 ```bash
 sudo a2enconf zabbix-frontend-php
 ```
 
-> Caso o comando acima n o funcione, crie um symlink manual:
+> Caso o comando acima não funcione, crie um symlink manual:
 
 ```bash
 sudo ln -s /etc/zabbix/apache.conf /etc/apache2/conf-enabled/zabbix.conf
 ```
 
-### Reiniciar Apache ap s ativar configura  o
+### Reiniciar Apache após ativar configuração
 
 ```bash
 sudo systemctl restart apache2
@@ -167,18 +167,18 @@ sudo systemctl restart apache2
 
 ---
 
-## ?? 7. Iniciar servi os
+## 🚀 7. Iniciar serviços
 
 ```bash
 sudo systemctl restart zabbix-server zabbix-agent apache2 php8.5-fpm
 sudo systemctl enable zabbix-server zabbix-agent apache2 php8.5-fpm
 ```
 
-> O `enable` garante que os servi os iniciem automaticamente no boot do servidor.
+> O `enable` garante que os serviços iniciem automaticamente no boot do servidor.
 
 ---
 
-## ?? 8. Verificar status dos servi os
+## 📊 8. Verificar status dos serviços
 
 ```bash
 sudo systemctl status zabbix-server
@@ -186,11 +186,11 @@ sudo systemctl status apache2
 sudo systemctl status zabbix-agent
 ```
 
-> Assim voc  confirma que todos os servi os est o funcionando corretamente antes de acessar a interface web.
+> Assim você confirma que todos os serviços estão funcionando corretamente antes de acessar a interface web.
 
 ---
 
-## ?? 9. Acessar a interface web
+## 🌍 9. Acessar a interface web
 
 Abra no navegador:
 
@@ -198,11 +198,11 @@ Abra no navegador:
 http://SEU_IP/zabbix
 ```
 
-**Login padr o:**
+**Login padrão:**
 
 | Campo | Valor |
 |---|---|
 | User | `Admin` |
 | Password | `zabbix` |
 
-> ?? Ap s o primeiro login,   altamente recomendado **alterar a senha padr o** para garantir a seguran a do servidor.
+> 🔐 Após o primeiro login, é altamente recomendado **alterar a senha padrão** para garantir a segurança do servidor.
