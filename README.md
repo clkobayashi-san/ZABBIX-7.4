@@ -6,7 +6,7 @@ Repositório de scripts diversos para Zabbix, seja instalação automatizada, up
 
 # 🌐 ZABBIX Monitoramento – Portfólio Técnico
 
-Este repositório reúne meus estudos, automações, consultas e projetos voltados para **monitoramento de infraestrutura de TI**, com foco em **Zabbix**, **Grafana**, **MariaDB** e integrações.
+Este repositório reúne meus estudos, automações, consultas e projetos voltados para **monitoramento de infraestrutura de TI**, com foco em **Zabbix**, **Grafana**, **MariaDB**, **PostgreSQL** e integrações.
 
 > 🔧 Desenvolvido e mantido por ZEROe1 Consultoria Treinamento e Soluções em Monitoração
 
@@ -20,7 +20,10 @@ Este repositório reúne meus estudos, automações, consultas e projetos voltad
 | `sql-queries/`    | Consultas SQL prontas para relatórios, dashboards e troubleshooting                |       
 | `casos-de-uso/`   | Situações reais ou simuladas com problemas, soluções e aprendizados                |
 | `documentacao/`   | Guias e explicações detalhadas dos scripts ou integrações                          |
-| `Integrações/`    | Integrações entre o Zabbix e outras ferramentas                                  |
+| `Instalações/`    | Instalações do Zabbix em diversos SO e Banco de dados e outras ferramentas         |
+| `Integrações/`    | Integrações entre o Zabbix e outras ferramentas                                    |
+| `Livros/`         | Capa dos livros e também o Indice de cada livro                                    |
+
 
 ---
 
@@ -64,6 +67,7 @@ Exemplos de como integrar o Zabbix com ferramentas externas, como:
 - Centralizar automações reutilizáveis com PowerShell.
 - Documentar situações reais enfrentadas em clientes.
 - Demonstrar domínio prático de Zabbix e suas APIs (SQL).
+- Documentar o passo-a-passo a instalação do Zabbix em várias distribuições Linux e Banco de Dados.
 
 ---
 
